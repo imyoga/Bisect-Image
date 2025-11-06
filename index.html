@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Vertical Image Splitter Tool</title>
+	<title>Image Bisector - Split Images Vertically</title>
 	<meta name="description"
 		content="Use our Vertical Image Splitter Tool to instantly split images in half down the middle. Upload multiple images and download the bisected versions easily.">
 	<meta name="keywords" content="vertical image splitter, split images in half, image processing, upload images, download images">
@@ -13,30 +13,102 @@
 </head>
 
 <body>
-	<header>
-		<h1>Vertical Image Splitter Tool</h1>
-		<p>Note: Splitting a large number of images may affect browser performance.</p>
-		<p>This tool runs entirely in your browser and does NOT upload or store any images.</p>
-	</header>
+	<div class="container">
+		<header>
+			<div class="header-icon">
+				<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<rect x="3" y="3" width="18" height="18" rx="2"/>
+					<line x1="12" y1="3" x2="12" y2="21"/>
+				</svg>
+			</div>
+			<h1>Image Bisector</h1>
+			<p class="subtitle">Split your images vertically with precision</p>
+			<div class="info-badges">
+				<span class="badge">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+					</svg>
+					100% Private
+				</span>
+				<span class="badge">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<circle cx="12" cy="12" r="10"/>
+						<polyline points="12 6 12 12 16 14"/>
+					</svg>
+					Instant Processing
+				</span>
+			</div>
+		</header>
 
-	<main>
-		<section>
-			<h2>Upload Your Images</h2>
-			<input type="file" id="fileInput" accept="image/*" multiple>
-			<button id="splitBtn" disabled>Split Images Down the Middle</button>
-			<button id="downloadBtn" disabled>Download Split Images</button>
-		</section>
+		<main>
+			<section class="upload-section card">
+				<h2>
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+						<polyline points="17 8 12 3 7 8"/>
+						<line x1="12" y1="3" x2="12" y2="15"/>
+					</svg>
+					Upload Images
+				</h2>
+				<div class="upload-area" id="uploadArea">
+					<input type="file" id="fileInput" accept="image/*" multiple>
+					<label for="fileInput" id="uploadLabel">
+						<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+							<polyline points="17 8 12 3 7 8"/>
+							<line x1="12" y1="3" x2="12" y2="15"/>
+						</svg>
+						<span class="upload-text">Click to browse or drag & drop images here</span>
+						<span class="upload-subtext">Supports multiple images • JPG, PNG, GIF, WebP</span>
+					</label>
+				</div>
+				<div class="file-count" id="fileCount"></div>
+			</section>
 
-		<section id="thumbnails">
-			<h2>Image Thumbnails</h2>
-			<!-- Thumbnails will be displayed here -->
-		</section>
-	</main>
+			<section class="actions-section">
+				<button id="splitBtn" class="btn btn-primary" disabled>
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<rect x="3" y="3" width="18" height="18" rx="2"/>
+						<line x1="12" y1="3" x2="12" y2="21"/>
+					</svg>
+					<span>Split Images</span>
+				</button>
+				<div class="tooltip-wrapper">
+					<button id="downloadBtn" class="btn btn-secondary" disabled data-tooltip="Upload and split images first">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+							<polyline points="7 10 12 15 17 10"/>
+							<line x1="12" y1="15" x2="12" y2="3"/>
+						</svg>
+						<span>Download All</span>
+					</button>
+				</div>
+			</section>
 
-	<footer>
-		<p>&copy; 2024 Vertical Image Splitter Tool. All rights reserved.</p>
-	</footer>
+			<div class="progress-bar" id="progressBar">
+				<div class="progress-fill" id="progressFill"></div>
+				<span class="progress-text" id="progressText"></span>
+			</div>
 
+			<section id="thumbnails" class="thumbnails-section">
+				<!-- Thumbnails will be displayed here -->
+			</section>
+		</main>
+
+		<footer>
+			<div class="footer-content">
+				<p>
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<circle cx="12" cy="12" r="10"/>
+						<line x1="12" y1="16" x2="12" y2="12"/>
+						<line x1="12" y1="8" x2="12.01" y2="8"/>
+					</svg>
+					All processing happens in your browser. No data is uploaded or stored.
+				</p>
+				<p class="copyright">&copy; 2024 Image Bisector. All rights reserved.</p>
+			</div>
+		</footer>
+	</div>
 </body>
 
 </html>

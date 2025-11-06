@@ -1,48 +1,116 @@
-
 const fileInput = document.getElementById('fileInput')
+const uploadArea = document.getElementById('uploadArea')
+const uploadLabel = document.getElementById('uploadLabel')
+const fileCount = document.getElementById('fileCount')
 const thumbnailsContainer = document.getElementById('thumbnails')
 const splitBtn = document.getElementById('splitBtn')
 const downloadBtn = document.getElementById('downloadBtn')
+const progressBar = document.getElementById('progressBar')
+const progressFill = document.getElementById('progressFill')
+const progressText = document.getElementById('progressText')
 
 let images = []
 let splitImages = []
+let fileNames = []
 
+// Drag and Drop functionality
+uploadArea.addEventListener('dragover', (e) => {
+	e.preventDefault()
+	uploadArea.classList.add('dragover')
+})
+
+uploadArea.addEventListener('dragleave', () => {
+	uploadArea.classList.remove('dragover')
+})
+
+uploadArea.addEventListener('drop', (e) => {
+	e.preventDefault()
+	uploadArea.classList.remove('dragover')
+	
+	const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'))
+	if (files.length > 0) {
+		fileInput.files = e.dataTransfer.files
+		handleFiles(files)
+	}
+})
+
+// File input change event
 fileInput.addEventListener('change', (e) => {
 	const files = Array.from(e.target.files)
+	handleFiles(files)
+})
+
+// Handle file processing
+function handleFiles(files) {
 	images = []
 	splitImages = []
+	fileNames = []
 	thumbnailsContainer.innerHTML = ''
 	splitBtn.disabled = false
 	downloadBtn.disabled = true
+	progressBar.classList.remove('active')
+
+	// Update file count
+	fileCount.textContent = `${files.length} image${files.length !== 1 ? 's' : ''} selected`
+	fileCount.style.display = 'block'
 
 	files.forEach((file, index) => {
+		fileNames.push(file.name)
 		const reader = new FileReader()
 		reader.onload = (e) => {
 			const img = new Image()
 			img.src = e.target.result
 			img.onload = () => {
 				images.push(img)
-				const thumbnailContainer = document.createElement('div')
-				thumbnailContainer.classList.add('thumbnail-container')
-				const thumbnail = img.cloneNode()
-				thumbnail.classList.add('thumbnail')
-				thumbnailContainer.appendChild(thumbnail)
-				const imageName = document.createElement('div')
-				imageName.classList.add('image-name')
-				imageName.textContent = `Image ${index + 1}`
-				thumbnailContainer.appendChild(imageName)
-				thumbnailsContainer.appendChild(thumbnailContainer)
+				displayOriginalThumbnail(img, file.name, index)
 			}
 		}
 		reader.readAsDataURL(file)
 	})
-})
+}
 
-splitBtn.addEventListener('click', () => {
+// Display original image thumbnails
+function displayOriginalThumbnail(img, fileName, index) {
+	const thumbnailContainer = document.createElement('div')
+	thumbnailContainer.classList.add('thumbnail-container')
+
+	const thumbnailRow = document.createElement('div')
+	thumbnailRow.classList.add('thumbnail-row')
+
+	const thumbnail = img.cloneNode()
+	thumbnail.classList.add('thumbnail')
+	thumbnailRow.appendChild(thumbnail)
+
+	thumbnailContainer.appendChild(thumbnailRow)
+
+	const imageName = document.createElement('div')
+	imageName.classList.add('image-name')
+	imageName.textContent = fileName || `Image ${index + 1}`
+	thumbnailContainer.appendChild(imageName)
+
+	thumbnailsContainer.appendChild(thumbnailContainer)
+}
+
+// Split button click event
+splitBtn.addEventListener('click', async () => {
 	splitImages = []
 	thumbnailsContainer.innerHTML = ''
+	
+	// Show progress bar
+	progressBar.classList.add('active')
+	progressFill.style.width = '0%'
+	progressText.textContent = 'Splitting images...'
 
-	images.forEach((img, index) => {
+	const totalImages = images.length
+
+	for (let index = 0; index < totalImages; index++) {
+		const img = images[index]
+		
+		// Update progress
+		const progress = ((index + 1) / totalImages) * 100
+		progressFill.style.width = `${progress}%`
+		progressText.textContent = `Processing ${index + 1} of ${totalImages}...`
+
 		const canvas = document.createElement('canvas')
 		const ctx = canvas.getContext('2d')
 		const halfWidth = img.width / 2
@@ -60,36 +128,69 @@ splitBtn.addEventListener('click', () => {
 		splitImages.push(canvas.toDataURL())
 
 		// Create thumbnails for split images
-		const thumbnailContainer = document.createElement('div')
-		thumbnailContainer.classList.add('thumbnail-container')
+		displaySplitThumbnails(splitImages.slice(-2), fileNames[index] || `Image ${index + 1}`, index)
 
-		const leftThumbnail = new Image()
-		leftThumbnail.src = splitImages[splitImages.length - 2]
-		leftThumbnail.classList.add('thumbnail')
-		thumbnailContainer.appendChild(leftThumbnail)
+		// Small delay for UI responsiveness
+		await delay(50)
+	}
 
-		const rightThumbnail = new Image()
-		rightThumbnail.src = splitImages[splitImages.length - 1]
-		rightThumbnail.classList.add('thumbnail')
-		thumbnailContainer.appendChild(rightThumbnail)
+	// Complete progress
+	progressFill.style.width = '100%'
+	progressText.textContent = 'Complete!'
+	
+	// Hide progress bar after a short delay
+	setTimeout(() => {
+		progressBar.classList.remove('active')
+	}, 1500)
 
-		const imageName = document.createElement('div')
-		imageName.classList.add('image-name')
-		imageName.textContent = `Image ${index + 1} (Split)`
-		thumbnailContainer.appendChild(imageName)
-
-		thumbnailsContainer.appendChild(thumbnailContainer)
-	})
-
+	// Enable download button
 	downloadBtn.disabled = false
 })
 
+// Display split image thumbnails
+function displaySplitThumbnails(splitPair, fileName, index) {
+	const thumbnailContainer = document.createElement('div')
+	thumbnailContainer.classList.add('thumbnail-container')
+
+	const thumbnailRow = document.createElement('div')
+	thumbnailRow.classList.add('thumbnail-row')
+
+	// Left thumbnail
+	const leftThumbnail = new Image()
+	leftThumbnail.src = splitPair[0]
+	leftThumbnail.classList.add('thumbnail')
+	thumbnailRow.appendChild(leftThumbnail)
+
+	// Divider
+	const divider = document.createElement('div')
+	divider.classList.add('divider')
+	thumbnailRow.appendChild(divider)
+
+	// Right thumbnail
+	const rightThumbnail = new Image()
+	rightThumbnail.src = splitPair[1]
+	rightThumbnail.classList.add('thumbnail')
+	thumbnailRow.appendChild(rightThumbnail)
+
+	thumbnailContainer.appendChild(thumbnailRow)
+
+	const imageName = document.createElement('div')
+	imageName.classList.add('image-name')
+	imageName.textContent = `${fileName} (Split)`
+	thumbnailContainer.appendChild(imageName)
+
+	thumbnailsContainer.appendChild(thumbnailContainer)
+}
+
+// Delay helper
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
+// Download button click event
 downloadBtn.addEventListener('click', async () => {
 	const imagesPerGroup = 2
 	let groupIndex = 1
 	let imageIndexInGroup = 1
+	
 	for (const [index, item] of splitImages.entries()) {
 		const link = document.createElement('a')
 		link.href = item
